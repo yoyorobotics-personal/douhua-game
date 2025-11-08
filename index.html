@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>豆花奇缘 | The Tofu Pudding</title>
     <style>
+              .home-btn{
+          z-index: 2000;          /* 提高层级，压过任何浮层 */
+          pointer-events: auto;   /* 明确允许点击 */
+        }
         * {
             margin: 0;
             padding: 0;
@@ -58,6 +62,7 @@
             padding: 30px;
             text-align: center;
             border-radius: 20px 20px 0 0;
+            position: relative;
         }
 
         .header h1 {
@@ -81,6 +86,19 @@
             padding: 40px;
             flex: 1;
             overflow-y: auto;
+            scroll-behavior: smooth;           /* 平滑滚动 */
+            -webkit-overflow-scrolling: touch; /* iOS 惯性滚动 */
+            max-height: 70vh;                  /* 限制最大高度，避免内容撑出容器 */
+        }
+
+        /* 自定义滚动条（可按需删除） */
+        .content::-webkit-scrollbar { width: 8px; }
+        .content::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        .content::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
         }
 
         .menu-item {
@@ -332,6 +350,51 @@
                 margin: 8px 0;
             }
         }
+            /* ===== 返回主页按钮 ===== */
+        .home-btn {
+            position: absolute;
+            top: 18px;
+            left: 30px;
+            display: flex;                   /* ✅ 使用 flex 居中 */
+            align-items: center;             /* 垂直居中 */
+            justify-content: center;         /* 水平居中 */
+            background: rgba(0,0,0,0.25);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.6);
+            padding: 6px 14px;               /* 微调上下内边距 */
+            border-radius: 10px;
+            font-size: 0.95em;
+            line-height: 1;                  /* 去掉系统默认行高 */
+            cursor: pointer;
+            transition: all .2s;
+            backdrop-filter: blur(2px);
+            z-index: 2000;
+        }
+        .home-btn:hover {
+            background: rgba(0,0,0,0.45);
+            transform: translateY(-1px);
+        }
+        /* ======= 剧情特效：惊讶提示 ======= */
+        .story-alert {
+          font-size: 1.3em;
+          color: #282828;
+          text-align: center;
+          letter-spacing: 1px;
+          margin: 15px 0;
+          padding: 10px 15px;
+          animation: pulseGlow 1.6s ease-in-out infinite alternate;
+        }
+
+        /* 分隔线 */
+        .divider {
+          border: none;
+          height: 1px;
+          background: linear-gradient(to right, transparent, rgba(97, 97, 97, 0.5), transparent);
+          margin: 15px 0;
+        }
+
+
+
     </style>
 </head>
 <body>
@@ -399,9 +462,13 @@
                     if (i < text.length) {
                         element.textContent += text.charAt(i);
                         i++;
+                        // 打字过程中让容器跟随到底
+                        if (i % 3 === 0) scrollToBottom();
                     } else {
                         element.classList.remove('typing');
                         clearInterval(timer);
+                        // 打字结束，确保滚动到底
+                        scrollToBottom();
                         resolve();
                     }
                 }, speed);
@@ -429,9 +496,21 @@
             </div>`;
         }
 
+        
+        // 滚动到内容底部（保持最新文本可见）
+        function scrollToBottom() {
+            const el = document.getElementById('gameContent');
+            if (!el) return;
+            el.scrollTop = el.scrollHeight;
+        }
+
         // 渲染内容
         function render(html) {
+            setupHomeButton();
             document.getElementById('gameContent').innerHTML = html;
+            // 初次渲染后滚动到底部
+            scrollToBottom();
+            
         }
 
         // 雷电效果
@@ -457,6 +536,8 @@
                     <button class="menu-item" onclick="showCredits()">👤 制作团队</button>
                 </div>
             `);
+            setupHomeButton();
+
         }
 
         function showInstructions() {
@@ -479,7 +560,6 @@
                     <p>• 游戏共有4种不同结局<br>
                     • 收集所有5条线索可以达成最好的结局<br>
                     • 游戏会在关键节点自动保存<br>
-                    • 试试在选择时输入"豆花"...</p>
                 </div>
                 <button class="continue-btn" onclick="showMainMenu()">返回主菜单</button>
             `);
@@ -498,7 +578,7 @@
                 </div>
                 <div class="about-section">
                     <h3>📝 版权信息</h3>
-                    <p>© 2025 豆花工作室 保留所有权利<br>
+                    <p>© 2025 慢悠悠的豆花工作室 保留所有权利<br>
                     本游戏受版权法保护，未经授权不得复制、分发或修改</p>
                 </div>
                 <div class="about-section">
@@ -520,19 +600,19 @@
                 <h2 style="color: #667eea;">👤 制作团队</h2>
                 <hr class="divider">
                 <div style="text-align: center; margin: 30px 0;">
-                    <h3>🎬 豆花工作室 荣誉出品</h3>
+                    <h3>🎬 慢悠悠的豆花工作室 荣誉出品</h3>
                 </div>
                 <div class="about-section">
                     <h3>📝 创作团队</h3>
-                    <p><strong>原创故事 & 游戏设计:</strong> [在这里填写你的名字]<br>
-                    <strong>联系方式:</strong> <a href="mailto:your@email.com" class="credits-link">your@email.com</a><br>
-                    <strong>GitHub:</strong> <a href="https://github.com/yourusername" class="credits-link" target="_blank">@yourusername</a></p>
+                    <p><strong>原创故事 & 游戏设计:</strong> 慢悠悠<br>
+                    <strong>联系方式:</strong> <a href="yoyorobotis@outlook.com" class="credits-link">yoyorobotis@outlook.com</a><br>
+                    <strong>GitHub:</strong> <a href="https://github.com/yoyorobotics-personal" class="credits-link" target="_blank">yoyorobotics-personal</a></p>
                 </div>
                 <div class="about-section">
                     <h3>💻 技术信息</h3>
                     <p><strong>开发工具:</strong> HTML5, CSS3, JavaScript<br>
                     <strong>托管平台:</strong> GitHub Pages<br>
-                    <strong>开源协议:</strong> MIT License</p>
+                    <strong>开源协议:</strong> Apache-2.0 license</p>
                 </div>
                 <div class="about-section">
                     <h3>🙏 特别感谢</h3>
@@ -542,10 +622,10 @@
                 </div>
                 <div class="about-section">
                     <h3>📮 联系我们</h3>
-                    <p>• 电子邮箱: <a href="mailto:your@email.com" class="credits-link">your@email.com</a><br>
-                    • 微信公众号: [在这里填写]<br>
-                    • B站: [在这里填写]<br>
-                    • 问题反馈: <a href="https://github.com/yourusername/douhua-game/issues" class="credits-link" target="_blank">GitHub Issues</a></p>
+                    <p>• 电子邮箱: <a href="mailto:yoyorobotics@outlook.com" class="credits-link">yoyorobotics@outlook.com</a><br>
+                    • 微信公众号: 慢悠悠的豆花奇缘<br>
+                    • B站: 慢悠悠的豆花奇缘<br>
+                    • 问题反馈: <a href="https://github.com/yoyorobotics-personal/douhua-game/issues" class="credits-link" target="_blank">GitHub Issues</a></p>
                 </div>
                 <button class="continue-btn" onclick="showMainMenu()">返回主菜单</button>
             `);
@@ -593,11 +673,13 @@
             thunderEffect();
             await new Promise(r => setTimeout(r, 800));
             
-            textElement.innerHTML += `<hr class="divider">
-                <div style="font-size: 1.2em; color: #f5576c; font-weight: bold;">
-                    怀里的罗盘突然疯狂旋转！<br>"引雷诀？！"
-                </div>
-                <hr class="divider">
+            textElement.innerHTML += `
+              <hr class="divider">
+              <div class="story-alert">
+                  怀里的罗盘突然疯狂旋转！<br>“引雷诀？！”
+              </div>
+              <hr class="divider">
+
                 <h3>你要怎么做？</h3>
                 <button class="choice-btn" onclick="sceneApproachStall()">立刻冲到豆花摊前询问</button>
                 <button class="choice-btn" onclick="sceneObserve()">先观察一下，不要打草惊蛇</button>
@@ -858,7 +940,43 @@
         // 初始化游戏
         window.onload = function() {
             showMainMenu();
+            scrollToBottom();
         };
+        // ===== 返回主菜单控制 =====
+        const __typingTimers = new Set();
+        function __trackTimer(t){ __typingTimers.add(t); return t; }
+        function __clearTypingTimers(){ __typingTimers.forEach(t=>clearInterval(t)); __typingTimers.clear(); }
+
+        function setupHomeButton(){
+            const header = document.querySelector('.header');
+            if(!header) return;
+
+            let btn = header.querySelector('.home-btn');
+            if(!btn){
+                btn = document.createElement('button');
+                btn.className = 'home-btn';
+                btn.title = '返回主菜单 (Esc)';
+                btn.textContent = '🏯归宗';
+                btn.addEventListener('click', tryReturnToMenu);
+                header.appendChild(btn);
+            }
+
+            // 主菜单不显示按钮（检测是否有“开始游戏”字样）
+            const isMainMenu = typeof gameState !== 'undefined' && gameState.currentScene === 'menu';
+            btn.style.display = isMainMenu ? 'none' : 'flex';   // 用 flex，和你的居中样式一致
+
+        }
+
+        function tryReturnToMenu(){
+            const ok = confirm('返回主菜单？当前进度已自动保存。');
+            if(ok){ __clearTypingTimers(); showMainMenu(); setupHomeButton(); }
+        }
+
+        document.addEventListener('keydown', e=>{
+            if(e.key === 'Escape') tryReturnToMenu();
+        });
+        window.addEventListener('load', setupHomeButton);
+
     </script>
 </body>
 </html>
